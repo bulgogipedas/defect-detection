@@ -1,4 +1,5 @@
 import argparse
+import json
 from pathlib import Path
 
 from sklearn.metrics import confusion_matrix, f1_score, roc_auc_score
@@ -28,7 +29,14 @@ def evaluate_patchcore(model: PatchCore, loader: DataLoader) -> dict[str, float]
     print(f"AUROC : {auroc:.4f}")
     print(f"F1    : {f1:.4f}")
     print(f"CM    :\n{cm}")
-    return {"auroc": auroc, "f1": f1}
+    return {
+        "auroc": auroc,
+        "f1": f1,
+        "tn": float(cm[0][0]),
+        "fp": float(cm[0][1]),
+        "fn": float(cm[1][0]),
+        "tp": float(cm[1][1]),
+    }
 
 
 def main() -> None:
@@ -37,6 +45,9 @@ def main() -> None:
     parser.add_argument("--category", default="bottle")
     parser.add_argument("--weights", default="")
     parser.add_argument("--batch-size", type=int, default=4)
+    parser.add_argument("--output-json", default="")
+    parser.add_argument("--min-auroc", type=float, default=0.7)
+    parser.add_argument("--min-f1", type=float, default=0.5)
     args = parser.parse_args()
 
     weights = args.weights or f"models/patchcore_{args.category}.pkl"
@@ -54,7 +65,21 @@ def main() -> None:
             shuffle=False,
             num_workers=0,
         )
-        evaluate_patchcore(model, loader)
+        metrics = evaluate_patchcore(model, loader)
+        metrics["category"] = args.category
+        metrics["weights"] = weights
+        metrics["pass_gate"] = (
+            metrics["auroc"] >= args.min_auroc and metrics["f1"] >= args.min_f1
+        )
+        print(
+            "PASS_GATE:", metrics["pass_gate"],
+            f"(auroc>={args.min_auroc}, f1>={args.min_f1})",
+        )
+        if args.output_json:
+            out = Path(args.output_json)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+            print(f"Saved metrics JSON: {out}")
 
 
 if __name__ == "__main__":
