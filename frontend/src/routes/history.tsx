@@ -70,26 +70,25 @@ function HistoryPage() {
   const maxPage = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 rounded-3xl border border-black/10 bg-white/75 p-6 shadow-sm backdrop-blur">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Inspection History</h1>
-        {isFetching && <span className="text-xs text-gray-500">Refreshing…</span>}
+        <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Inspection History</h1>
+        {isFetching && <span className="text-xs text-[#6e6e73]">Refreshing…</span>}
       </div>
 
       {isLoading ? (
-        <div className="text-gray-500">Loading…</div>
+        <div className="text-[#6e6e73]">Loading…</div>
       ) : (
-        <div className="rounded-xl border border-gray-800 overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-black/10">
           <table className="w-full text-sm min-w-[640px]">
-            <thead className="bg-gray-900">
+            <thead className="bg-[#f5f5f7]">
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id}>
                   {hg.headers.map((h) => (
                     <th
                       key={h.id}
                       onClick={h.column.getToggleSortingHandler()}
-                      className="px-4 py-3 text-left text-gray-400 font-medium
-                                 cursor-pointer hover:text-white select-none"
+                      className="cursor-pointer select-none px-4 py-3 text-left font-medium text-[#6e6e73] transition-colors hover:text-[#1d1d1f]"
                     >
                       {flexRender(h.column.columnDef.header, h.getContext())}
                       {(
@@ -104,7 +103,7 @@ function HistoryPage() {
               {table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-t border-gray-800 hover:bg-gray-900/50 transition-colors"
+                  className="border-t border-black/10 transition-colors hover:bg-[#f5f5f7]/80"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">
@@ -118,25 +117,23 @@ function HistoryPage() {
         </div>
       )}
 
-      <div className="flex items-center gap-2 justify-end text-sm">
+      <div className="flex items-center justify-end gap-2 text-sm">
         <button
           type="button"
           onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page === 1}
-          className="px-3 py-1.5 rounded-lg border border-gray-700
-                     disabled:opacity-30 hover:bg-gray-800 transition-colors"
+          className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 disabled:opacity-30"
         >
           Prev
         </button>
-        <span className="text-gray-400">
+        <span className="text-[#6e6e73]">
           Page {page} of {data ? maxPage : "—"}
         </span>
         <button
           type="button"
           onClick={() => setPage((p) => p + 1)}
           disabled={!data || page >= maxPage}
-          className="px-3 py-1.5 rounded-lg border border-gray-700
-                     disabled:opacity-30 hover:bg-gray-800 transition-colors"
+          className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 disabled:opacity-30"
         >
           Next
         </button>

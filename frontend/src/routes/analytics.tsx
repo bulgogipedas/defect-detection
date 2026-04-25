@@ -18,31 +18,31 @@ function AnalyticsPage() {
       : []
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Analytics</h1>
+    <div className="space-y-6 rounded-3xl border border-black/10 bg-white/75 p-6 shadow-sm backdrop-blur">
+      <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Analytics</h1>
       {isLoading || !data ? (
-        <p className="text-gray-500">Loading…</p>
+        <p className="text-[#6e6e73]">Loading…</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
-            <p className="text-sm text-gray-500">Total inspections</p>
-            <p className="text-2xl font-semibold text-white">{data.total}</p>
+          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
+            <p className="text-sm text-[#6e6e73]">Total inspections</p>
+            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.total}</p>
           </div>
-          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
-            <p className="text-sm text-gray-500">Avg latency</p>
-            <p className="text-2xl font-semibold text-white">{data.avg_latency_ms.toFixed(1)} ms</p>
+          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
+            <p className="text-sm text-[#6e6e73]">Avg latency</p>
+            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.avg_latency_ms.toFixed(1)} ms</p>
           </div>
-          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
-            <p className="text-sm text-gray-500">P50 latency</p>
-            <p className="text-2xl font-semibold text-white">{data.p50_latency_ms.toFixed(1)} ms</p>
+          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
+            <p className="text-sm text-[#6e6e73]">P50 latency</p>
+            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.p50_latency_ms.toFixed(1)} ms</p>
           </div>
-          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
-            <p className="text-sm text-gray-500">P95 latency</p>
-            <p className="text-2xl font-semibold text-white">{data.p95_latency_ms.toFixed(1)} ms</p>
+          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
+            <p className="text-sm text-[#6e6e73]">P95 latency</p>
+            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.p95_latency_ms.toFixed(1)} ms</p>
           </div>
-          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
-            <p className="text-sm text-gray-500">Inference mode</p>
-            <p className="text-base text-white">
+          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
+            <p className="text-sm text-[#6e6e73]">Inference mode</p>
+            <p className="text-base text-[#1d1d1f]">
               demo: {data.demo_inference_count} · prod: {data.production_inference_count}
             </p>
           </div>
@@ -55,10 +55,10 @@ function AnalyticsPage() {
               <XAxis dataKey="name" stroke="#9ca3af" />
               <YAxis domain={[0, 100]} stroke="#9ca3af" />
               <Tooltip
-                contentStyle={{ background: "#111827", border: "1px solid #374151" }}
-                labelStyle={{ color: "#e5e7eb" }}
+                contentStyle={{ background: "#ffffff", border: "1px solid #d2d2d7" }}
+                labelStyle={{ color: "#1d1d1f" }}
               />
-              <Bar dataKey="value" fill="#6366f1" />
+              <Bar dataKey="value" fill="#0071e3" />
             </BarChart>
           </ResponsiveContainer>
         </div>
