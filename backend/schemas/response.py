@@ -22,6 +22,8 @@ class InferenceResponse(BaseModel):
     anomaly_score: float
     detections: list[dict[str, Any]] = Field(default_factory=list)
     latency_ms: float
+    model_mode: str = "unknown"
+    model_version: str = "unknown"
 
 
 class ResultItem(BaseModel):
@@ -32,6 +34,8 @@ class ResultItem(BaseModel):
     is_defect: bool
     anomaly_score: float
     latency_ms: float
+    model_mode: str = "unknown"
+    model_version: str = "unknown"
     created_at: datetime
 
 
@@ -46,3 +50,13 @@ class StatsResponse(BaseModel):
     total: int
     defect_rate: float
     avg_latency_ms: float
+
+
+class TelemetryResponse(BaseModel):
+    total: int
+    defect_rate: float
+    avg_latency_ms: float
+    p50_latency_ms: float
+    p95_latency_ms: float
+    demo_inference_count: int
+    production_inference_count: int

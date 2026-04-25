@@ -20,6 +20,8 @@ mlflow/mlruns/
 # Env
 .env
 .env.local
+backend/results.db
+backend/local_storage/
 
 # IDE
 .idea/

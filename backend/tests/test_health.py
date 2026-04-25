@@ -10,4 +10,5 @@ def test_health() -> None:
     assert r.status_code == 200
     body = r.json()
     assert body["status"] == "ok"
-    assert "patchcore_exists" in body
+    assert "model_status" in body
+    assert "configured_mode" in body["model_status"]

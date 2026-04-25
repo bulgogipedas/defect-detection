@@ -5,6 +5,8 @@ export interface InferenceResponse {
   anomaly_score: number
   detections: Record<string, unknown>[]
   latency_ms: number
+  model_mode: string
+  model_version: string
 }
 
 export interface ResultRecord {
@@ -15,6 +17,8 @@ export interface ResultRecord {
   is_defect: boolean
   anomaly_score: number
   latency_ms: number
+  model_mode: string
+  model_version: string
   created_at: string
 }
 
@@ -29,4 +33,14 @@ export interface StatsResponse {
   total: number
   defect_rate: number
   avg_latency_ms: number
+}
+
+export interface TelemetryResponse {
+  total: number
+  defect_rate: number
+  avg_latency_ms: number
+  p50_latency_ms: number
+  p95_latency_ms: number
+  demo_inference_count: number
+  production_inference_count: number
 }

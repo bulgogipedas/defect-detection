@@ -83,6 +83,10 @@ function InferencePage() {
             Score: <code className="text-white">{mutation.data.anomaly_score.toFixed(4)}</code>
             {" · "}
             Latency: <code className="text-white">{mutation.data.latency_ms.toFixed(1)}</code> ms
+            {" · "}
+            Mode: <code className="text-white">{mutation.data.model_mode}</code>
+            {" · "}
+            Version: <code className="text-white">{mutation.data.model_version}</code>
           </p>
         </div>
       )}

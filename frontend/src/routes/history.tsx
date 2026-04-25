@@ -35,6 +35,14 @@ const columns = [
     header: "Latency",
     cell: (i) => `${i.getValue().toFixed(1)}ms`,
   }),
+  col.accessor("model_mode", {
+    header: "Mode",
+    cell: (i) => i.getValue(),
+  }),
+  col.accessor("model_version", {
+    header: "Version",
+    cell: (i) => <code>{i.getValue()}</code>,
+  }),
 ]
 
 export const Route = createFileRoute("/history")({

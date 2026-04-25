@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query
 
 from config import get_settings
-from schemas.response import PaginatedResults, ResultItem, StatsResponse
+from schemas.response import PaginatedResults, ResultItem, StatsResponse, TelemetryResponse
 
 router = APIRouter()
 
@@ -36,6 +36,13 @@ async def stats() -> StatsResponse:
     from services import db_service
 
     return await db_service.get_stats()
+
+
+@router.get("/telemetry", response_model=TelemetryResponse)
+async def telemetry() -> TelemetryResponse:
+    from services import db_service
+
+    return await db_service.get_telemetry()
 
 
 @router.get("/categories")

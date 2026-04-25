@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { useStats } from "../queries/useStats"
+import { useTelemetry } from "../queries/useTelemetry"
 
 export const Route = createFileRoute("/analytics")({
   component: AnalyticsPage,
 })
 
 function AnalyticsPage() {
-  const { data, isLoading } = useStats()
+  const { data, isLoading } = useTelemetry()
 
   const chartData =
     data != null
@@ -31,6 +31,20 @@ function AnalyticsPage() {
           <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
             <p className="text-sm text-gray-500">Avg latency</p>
             <p className="text-2xl font-semibold text-white">{data.avg_latency_ms.toFixed(1)} ms</p>
+          </div>
+          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
+            <p className="text-sm text-gray-500">P50 latency</p>
+            <p className="text-2xl font-semibold text-white">{data.p50_latency_ms.toFixed(1)} ms</p>
+          </div>
+          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
+            <p className="text-sm text-gray-500">P95 latency</p>
+            <p className="text-2xl font-semibold text-white">{data.p95_latency_ms.toFixed(1)} ms</p>
+          </div>
+          <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/40">
+            <p className="text-sm text-gray-500">Inference mode</p>
+            <p className="text-base text-white">
+              demo: {data.demo_inference_count} · prod: {data.production_inference_count}
+            </p>
           </div>
         </div>
       )}

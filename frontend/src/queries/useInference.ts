@@ -10,6 +10,7 @@ export function useInference() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["results"] })
       void qc.invalidateQueries({ queryKey: ["stats"] })
+      void qc.invalidateQueries({ queryKey: ["telemetry"] })
     },
   })
 }

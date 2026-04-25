@@ -19,5 +19,7 @@ class InspectionResult(Base):
     is_defect: Mapped[bool] = mapped_column(Boolean, default=False)
     anomaly_score: Mapped[float] = mapped_column(Float, default=0.0)
     latency_ms: Mapped[float] = mapped_column(Float, default=0.0)
+    model_mode: Mapped[str] = mapped_column(String(32), default="unknown")
+    model_version: Mapped[str] = mapped_column(String(64), default="unknown")
     extra_json: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
