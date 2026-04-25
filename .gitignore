@@ -1,0 +1,38 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Data & artifacts
+data/raw/
+# Trained weights at repo root only (not src/models)
+/models/
+*.pkl
+*.pt
+mlflow/mlruns/
+
+# Env
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Node / Bun
+frontend/node_modules/
+frontend/dist/
+*.log
+
+# OS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/

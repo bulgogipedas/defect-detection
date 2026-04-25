@@ -1,0 +1,53 @@
+services:
+  minio:
+    image: quay.io/minio/minio:latest
+    command: server /data --console-address :9001
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    command: mlflow server --host 0.0.0.0 --port 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../mlflow:/mlflow
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Containerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:////app/results.db
+      USE_MINIO: "true"
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_USE_SSL: "false"
+      DATA_RAW_ROOT: /data/raw
+      PATCHCORE_MODEL_PATH: /models/patchcore_bottle.pkl
+    volumes:
+      - ../models:/models:Z
+      - ../data/raw:/data/raw:ro
+    depends_on:
+      - minio
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: frontend/Containerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  minio_data: {}

@@ -1,0 +1,6 @@
+device: mps
+epochs: 50
+imgsz: 640
+batch_size: 8
+img_size_patchcore: 224
+threshold_percentile: 95
