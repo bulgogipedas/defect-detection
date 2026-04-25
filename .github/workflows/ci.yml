@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install root deps
+        run: uv sync
+
+      - name: Lint root src
+        run: uv run ruff check src
+
+      - name: Backend lint and tests
+        run: |
+          cd backend
+          uv sync
+          uv run ruff check .
+          uv run pytest -q
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Frontend lint and build
+        run: |
+          cd frontend
+          bun install --frozen-lockfile
+          bun run lint
+          bun run build
+
+      - name: Training smoke (CLI availability)
+        run: |
+          uv run python -m src.training.train --help
+          uv run python -m src.training.evaluate --help
+          uv run python -m src.training.promote --help
+
+      - name: Model gate check
+        run: |
+          chmod +x scripts/check_model_gate.sh
+          ./scripts/check_model_gate.sh
+
+      - name: Build backend container image
+        run: |
+          docker build \
+            --build-arg VCS_REF=${{ github.sha }} \
+            -f backend/Containerfile \
+            -t defect-backend:${{ github.sha }} .
+
+      - name: Build frontend container image
+        run: |
+          docker build \
+            --build-arg VCS_REF=${{ github.sha }} \
+            -f frontend/Containerfile \
+            -t defect-frontend:${{ github.sha }} .

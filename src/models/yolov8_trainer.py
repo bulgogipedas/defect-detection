@@ -1,5 +1,6 @@
-import mlflow
 from ultralytics import YOLO
+
+import mlflow
 
 
 def _get_device_str() -> str:

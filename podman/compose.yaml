@@ -20,6 +20,7 @@ services:
       - ../mlflow:/mlflow
 
   backend:
+    image: defect-backend:local
     build:
       context: ..
       dockerfile: backend/Containerfile
@@ -41,6 +42,7 @@ services:
       - minio
 
   frontend:
+    image: defect-frontend:local
     build:
       context: ..
       dockerfile: frontend/Containerfile
