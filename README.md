@@ -5,6 +5,8 @@ Local-first MVP MLOps project for visual defect detection with:
 - version-aware FastAPI inference service,
 - operational telemetry + CI quality gates.
 
+Latest update: modernized operator-first frontend UX with responsive bento layouts and smoother transitions.
+
 ## Layout
 
 | Path | Role |
