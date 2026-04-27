@@ -11,7 +11,9 @@ export function useResults(page = 1, pageSize = 20) {
           params: { page, page_size: pageSize },
         })
         .then((r) => r.data),
-    staleTime: 30_000,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
     placeholderData: keepPreviousData,
   })
 }

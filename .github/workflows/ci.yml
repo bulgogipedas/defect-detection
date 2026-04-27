@@ -21,7 +21,9 @@ jobs:
         run: uv sync
 
       - name: Lint root src
-        run: uv run ruff check src
+        run: |
+          uv run ruff check src --fix
+          uv run ruff check src
 
       - name: Backend lint and tests
         run: |

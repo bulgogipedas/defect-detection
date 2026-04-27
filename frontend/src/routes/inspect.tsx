@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
+import { Gauge, ScanSearch } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
@@ -45,12 +46,27 @@ function InferencePage() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-      <Card>
+    <div className="space-y-4 sm:space-y-5" data-page-anim>
+      <div data-section-el className="surface-panel panel-interactive flex flex-wrap items-center justify-between gap-3 p-5">
+        <div>
+          <p className="section-eyebrow">Inspection Workspace</p>
+          <h1 className="text-lg font-semibold tracking-tight sm:text-xl">
+            Run visual anomaly inference with operator-first controls
+          </h1>
+        </div>
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs text-primary ring-1 ring-primary/20">
+          <Gauge className="h-3.5 w-3.5" />
+          Runtime Online
+        </div>
+      </div>
+
+      <div data-section-el className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="space-y-4">
+      <Card className="surface-panel panel-interactive">
         <CardHeader>
-          <CardTitle className="text-2xl">Inspect Product</CardTitle>
-          <CardDescription>Pilih mode inferensi dulu, lalu (opsional) kategori manual.</CardDescription>
-          <div className="flex items-center gap-2 pt-1">
+          <CardTitle className="text-xl sm:text-2xl">Inspect Product</CardTitle>
+          <CardDescription>Set inference strategy, upload image, and run anomaly detection.</CardDescription>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
             {detectionMode === "auto_fast" ? (
               <Badge
                 variant="secondary"
@@ -84,7 +100,7 @@ function InferencePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Inference Mode</p>
+            <p className="section-eyebrow">Inference Strategy</p>
             <div className="grid gap-2 sm:grid-cols-3">
               <ModeButton
                 active={detectionMode === "auto_fast"}
@@ -108,7 +124,7 @@ function InferencePage() {
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Category (Manual Only)</p>
+            <p className="section-eyebrow">Manual Category</p>
             <Select
               value={selectedManualCategory}
               disabled={detectionMode !== "manual"}
@@ -133,7 +149,7 @@ function InferencePage() {
 
           <div
             {...getRootProps()}
-            className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors sm:p-12 ${
+            className={`cursor-pointer rounded-2xl border-2 border-dashed p-6 text-center transition-colors sm:p-12 ${
               isDragActive ? "border-primary bg-primary/5" : "border-border bg-muted/30 hover:border-primary/60"
             }`}
           >
@@ -141,7 +157,10 @@ function InferencePage() {
             {preview ? (
               <img src={preview} alt="preview" className="mx-auto max-h-64 rounded-lg object-contain" />
             ) : (
-              <p className="text-muted-foreground">Drop an image or click to upload</p>
+              <div className="space-y-2">
+                <ScanSearch className="mx-auto h-6 w-6 text-primary/70" />
+                <p className="text-sm text-muted-foreground sm:text-base">Drop an image or click to upload</p>
+              </div>
             )}
           </div>
 
@@ -150,8 +169,21 @@ function InferencePage() {
           </Button>
         </CardContent>
       </Card>
+      <Card className="surface-panel panel-interactive">
+        <CardHeader>
+          <CardTitle className="text-lg">Operation Notes</CardTitle>
+          <CardDescription>Simple guidance to reduce false positives during manual checks.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
+          <HintPill title="Lighting" desc="Use stable lighting and avoid strong reflections." />
+          <HintPill title="Framing" desc="Keep object centered and mostly fills the frame." />
+          <HintPill title="Category" desc="Switch to manual mode if object type is known." />
+        </CardContent>
+      </Card>
+      </div>
 
-      <Card>
+      <div className="space-y-4">
+      <Card className="surface-panel panel-interactive">
         <CardHeader>
           <CardTitle>Inference Result</CardTitle>
           <CardDescription>Operational output and model traceability</CardDescription>
@@ -171,30 +203,30 @@ function InferencePage() {
               <Badge variant={mutation.data.is_defect ? "destructive" : "default"}>
                 {mutation.data.is_defect ? "DEFECT DETECTED" : "PASSED"}
               </Badge>
-              <div className="space-y-1 text-sm">
-                <p>
-                  Score: <code>{mutation.data.anomaly_score.toFixed(4)}</code>
-                </p>
-                <p>
-                  Latency: <code>{mutation.data.latency_ms.toFixed(1)} ms</code>
-                </p>
-                <p>
-                  Mode: <code>{mutation.data.model_mode}</code>
-                </p>
-                <p>
-                  Requested: <code>{requestCategory}</code>
-                </p>
-                <p>
-                  Version: <code>{mutation.data.model_version}</code>
-                </p>
-                <p>
-                  Category: <code>{mutation.data.category}</code>
-                </p>
+              <div className="grid gap-2 text-sm sm:grid-cols-2">
+                <MetricChip label="Score" value={mutation.data.anomaly_score.toFixed(4)} />
+                <MetricChip label="Latency" value={`${mutation.data.latency_ms.toFixed(1)} ms`} />
+                <MetricChip label="Mode" value={mutation.data.model_mode} />
+                <MetricChip label="Requested" value={requestCategory} />
+                <MetricChip label="Version" value={mutation.data.model_version} />
+                <MetricChip label="Category" value={mutation.data.category} />
               </div>
             </div>
           )}
         </CardContent>
       </Card>
+      <Card className="surface-panel panel-interactive">
+        <CardHeader>
+          <CardTitle className="text-base">Current Selection</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Badge variant="secondary">{detectionMode}</Badge>
+          <Badge variant="outline">{requestCategory}</Badge>
+          <Badge variant="outline">{file ? file.name : "no-file"}</Badge>
+        </CardContent>
+      </Card>
+      </div>
+      </div>
     </div>
   )
 }
@@ -215,7 +247,7 @@ function ModeButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-lg border p-3 text-left transition-colors",
+        "rounded-lg border p-3 text-left transition-colors micro-lift",
         active
           ? "border-primary bg-primary/10 ring-1 ring-primary/30"
           : "border-border bg-background hover:bg-muted/40",
@@ -224,5 +256,23 @@ function ModeButton({
       <p className="text-sm font-semibold">{title}</p>
       <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
     </button>
+  )
+}
+
+function MetricChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="truncate font-medium">{value}</p>
+    </div>
+  )
+}
+
+function HintPill({ title, desc }: { title: string; desc: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-background/70 p-3">
+      <p className="font-medium text-foreground">{title}</p>
+      <p className="mt-1 text-xs">{desc}</p>
+    </div>
   )
 }

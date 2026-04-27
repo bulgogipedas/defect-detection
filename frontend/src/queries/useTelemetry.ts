@@ -6,6 +6,8 @@ export function useTelemetry() {
   return useQuery({
     queryKey: ["telemetry"],
     queryFn: () => axios.get<TelemetryResponse>("/api/v1/telemetry").then((r) => r.data),
-    staleTime: 30_000,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   })
 }
