@@ -22,6 +22,7 @@ class InferenceResponse(BaseModel):
     anomaly_score: float
     detections: list[dict[str, Any]] = Field(default_factory=list)
     latency_ms: float
+    category: str = "unknown"
     model_mode: str = "unknown"
     model_version: str = "unknown"
 

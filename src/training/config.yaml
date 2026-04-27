@@ -4,5 +4,8 @@ imgsz: 640
 batch_size: 8
 img_size_patchcore: 224
 threshold_percentile: 95
+n_neighbors: 9
+distance_metric: euclidean
+score_reduction: mean
 min_auroc: 0.7
 min_f1: 0.5

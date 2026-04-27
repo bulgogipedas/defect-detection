@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 from pathlib import Path
 
 from sklearn.metrics import confusion_matrix, f1_score, roc_auc_score
@@ -40,11 +41,16 @@ def evaluate_patchcore(model: PatchCore, loader: DataLoader) -> dict[str, float]
 
 
 def main() -> None:
+    default_data_root = str(Path("~/Downloads/mvtec_anomaly_detection").expanduser())
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", choices=["patchcore"], default="patchcore")
     parser.add_argument("--category", default="bottle")
     parser.add_argument("--weights", default="")
     parser.add_argument("--batch-size", type=int, default=4)
+    parser.add_argument(
+        "--data-root",
+        default=os.getenv("DATA_RAW_ROOT", default_data_root),
+    )
     parser.add_argument("--output-json", default="")
     parser.add_argument("--min-auroc", type=float, default=0.7)
     parser.add_argument("--min-f1", type=float, default=0.5)
@@ -58,7 +64,7 @@ def main() -> None:
         model = PatchCore()
         model.load(weights)
 
-        ds = DefectDataset("data/raw", args.category, split="test", augment=False)
+        ds = DefectDataset(args.data_root, args.category, split="test", augment=False)
         loader = DataLoader(
             ds,
             batch_size=args.batch_size,

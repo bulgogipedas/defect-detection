@@ -15,7 +15,7 @@ log = logging.getLogger("defect_api.inference")
 @router.post("/infer", response_model=InferenceResponse)
 async def infer(
     file: UploadFile = File(...),
-    category: str = Form("bottle"),
+    category: str = Form("auto_fast"),
 ) -> InferenceResponse:
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
@@ -35,11 +35,12 @@ async def infer(
         raise HTTPException(status_code=503, detail=str(e)) from e
     latency_ms = (time.perf_counter() - t0) * 1000
 
+    resolved_category = str(result.get("category", category))
     await db_service.save_result(
         {
             "image_id": image_id,
             "image_url": image_url,
-            "category": category,
+            "category": resolved_category,
             "is_defect": result["is_defect"],
             "anomaly_score": result["anomaly_score"],
             "latency_ms": latency_ms,
@@ -50,7 +51,7 @@ async def infer(
     log.info(
         "inference_completed image_id=%s category=%s is_defect=%s latency_ms=%.2f mode=%s version=%s",
         image_id,
-        category,
+        resolved_category,
         bool(result["is_defect"]),
         latency_ms,
         result.get("mode", "unknown"),
@@ -64,6 +65,7 @@ async def infer(
         anomaly_score=float(result["anomaly_score"]),
         detections=result.get("detections", []),
         latency_ms=latency_ms,
+        category=resolved_category,
         model_mode=str(result.get("mode", "unknown")),
         model_version=str(result.get("model_version", "unknown")),
     )

@@ -11,6 +11,7 @@ build/
 
 # Data & artifacts
 data/raw/
+/reports/model-eval/*.json
 # Trained weights at repo root only (not src/models)
 /models/
 *.pkl

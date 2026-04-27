@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -17,6 +18,17 @@ def main() -> None:
     parser.add_argument("--experiment", default="defect-pipeline")
     parser.add_argument("--output-dir", default="models/runs")
     parser.add_argument("--run-name", default="")
+    parser.add_argument("--threshold-percentile", type=int, default=None)
+    parser.add_argument("--n-neighbors", type=int, default=None)
+    parser.add_argument("--distance-metric", choices=["euclidean", "cosine"], default=None)
+    parser.add_argument("--score-reduction", choices=["mean", "min"], default=None)
+    parser.add_argument(
+        "--data-root",
+        default=os.getenv(
+            "DATA_RAW_ROOT",
+            str(Path("~/Downloads/mvtec_anomaly_detection").expanduser()),
+        ),
+    )
     args = parser.parse_args()
 
     cfg_path = Path(args.config)
@@ -40,6 +52,7 @@ def main() -> None:
             "category": args.category,
             "run_name": run_name,
             "config_path": args.config,
+            "data_root": args.data_root,
         }
     )
 
@@ -49,7 +62,7 @@ def main() -> None:
 
         img_size = cfg.get("img_size_patchcore", 224)
         dataset = DefectDataset(
-            "data/raw",
+            args.data_root,
             args.category,
             split="train",
             img_size=img_size,
@@ -60,16 +73,30 @@ def main() -> None:
         if not images:
             raise SystemExit(
                 "No normal (label=0) images in train split. "
-                "Download MVTec AD and extract under data/raw/<category>/train/good/"
+                "Download MVTec AD and extract under "
+                "<data-root>/<category>/train/good/"
             )
 
         model = PatchCore()
-        model.fit(images, threshold_percentile=cfg["threshold_percentile"])
+        threshold_percentile = args.threshold_percentile or int(cfg["threshold_percentile"])
+        n_neighbors = args.n_neighbors or int(cfg.get("n_neighbors", 9))
+        distance_metric = args.distance_metric or str(cfg.get("distance_metric", "euclidean"))
+        score_reduction = args.score_reduction or str(cfg.get("score_reduction", "mean"))
+        model.fit(
+            images,
+            threshold_percentile=threshold_percentile,
+            n_neighbors=n_neighbors,
+            distance_metric=distance_metric,
+            score_reduction=score_reduction,
+        )
         model.save(str(model_path))
         # Keep backwards-compatible latest pointer.
         latest_model = Path("models") / f"patchcore_{args.category}.pkl"
         model.save(str(latest_model))
-        mlflow.log_param("threshold_percentile", cfg["threshold_percentile"])
+        mlflow.log_param("threshold_percentile", threshold_percentile)
+        mlflow.log_param("n_neighbors", n_neighbors)
+        mlflow.log_param("distance_metric", distance_metric)
+        mlflow.log_param("score_reduction", score_reduction)
         mlflow.log_artifact(str(model_path), artifact_path="model")
         summary = {
             "model_type": "patchcore",
@@ -77,6 +104,9 @@ def main() -> None:
             "artifact_path": str(model_path),
             "latest_model_path": str(latest_model),
             "threshold": model.threshold,
+            "n_neighbors": n_neighbors,
+            "distance_metric": distance_metric,
+            "score_reduction": score_reduction,
         }
         metrics_json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         mlflow.log_artifact(str(metrics_json_path), artifact_path="metadata")

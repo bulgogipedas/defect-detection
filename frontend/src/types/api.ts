@@ -1,6 +1,7 @@
 export interface InferenceResponse {
   image_id: string
   image_url: string
+  category: string
   is_defect: boolean
   anomaly_score: number
   detections: Record<string, unknown>[]
@@ -43,4 +44,8 @@ export interface TelemetryResponse {
   p95_latency_ms: number
   demo_inference_count: number
   production_inference_count: number
+}
+
+export interface CategoriesResponse {
+  categories: string[]
 }

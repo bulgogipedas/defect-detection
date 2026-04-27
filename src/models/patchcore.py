@@ -28,6 +28,9 @@ class PatchCore:
         self.memory_bank: np.ndarray | None = None
         self.knn: NearestNeighbors | None = None
         self.threshold: float = 0.0
+        self.n_neighbors: int = 9
+        self.distance_metric: str = "euclidean"
+        self.score_reduction: str = "mean"
 
     def _build_backbone(self) -> nn.Module:
         model = wide_resnet50_2(weights=Wide_ResNet50_2_Weights.IMAGENET1K_V1)
@@ -38,6 +41,9 @@ class PatchCore:
         self,
         normal_images: list[torch.Tensor],
         threshold_percentile: int = 95,
+        n_neighbors: int = 9,
+        distance_metric: str = "euclidean",
+        score_reduction: str = "mean",
     ) -> None:
         features: list[np.ndarray] = []
         with torch.no_grad():
@@ -47,11 +53,21 @@ class PatchCore:
                 features.append(pooled.cpu().numpy().reshape(-1))
 
         self.memory_bank = np.array(features)
-        self.knn = NearestNeighbors(n_neighbors=min(9, len(self.memory_bank)), metric="euclidean")
+        self.n_neighbors = max(1, int(n_neighbors))
+        self.distance_metric = distance_metric
+        self.score_reduction = score_reduction
+        self.knn = NearestNeighbors(
+            n_neighbors=min(self.n_neighbors, len(self.memory_bank)),
+            metric=self.distance_metric,
+        )
         self.knn.fit(self.memory_bank)
 
         distances, _ = self.knn.kneighbors(self.memory_bank)
-        self.threshold = float(np.percentile(distances.mean(axis=1), threshold_percentile))
+        if self.score_reduction == "min":
+            train_scores = distances.min(axis=1)
+        else:
+            train_scores = distances.mean(axis=1)
+        self.threshold = float(np.percentile(train_scores, threshold_percentile))
         print(f"✅ PatchCore fitted. threshold={self.threshold:.4f}")
 
     def predict(self, image_tensor: torch.Tensor) -> dict[str, Any]:
@@ -64,7 +80,10 @@ class PatchCore:
             feat_np = pooled.cpu().numpy().reshape(1, -1)
 
         distances, _ = self.knn.kneighbors(feat_np)
-        score = float(distances.mean())
+        if self.score_reduction == "min":
+            score = float(distances.min())
+        else:
+            score = float(distances.mean())
 
         if self.device.type == "mps":
             torch.mps.empty_cache()
@@ -81,6 +100,9 @@ class PatchCore:
                 {
                     "memory_bank": self.memory_bank,
                     "threshold": self.threshold,
+                    "n_neighbors": self.n_neighbors,
+                    "distance_metric": self.distance_metric,
+                    "score_reduction": self.score_reduction,
                 },
                 f,
             )
@@ -90,6 +112,12 @@ class PatchCore:
             data = pickle.load(f)
         self.memory_bank = data["memory_bank"]
         self.threshold = data["threshold"]
-        n = min(9, len(self.memory_bank))
-        self.knn = NearestNeighbors(n_neighbors=max(1, n), metric="euclidean")
+        self.n_neighbors = int(data.get("n_neighbors", 9))
+        self.distance_metric = str(data.get("distance_metric", "euclidean"))
+        self.score_reduction = str(data.get("score_reduction", "mean"))
+        n = min(self.n_neighbors, len(self.memory_bank))
+        self.knn = NearestNeighbors(
+            n_neighbors=max(1, n),
+            metric=self.distance_metric,
+        )
         self.knn.fit(self.memory_bank)

@@ -8,6 +8,10 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table"
+import { Badge } from "../components/ui/badge"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table"
 import { useResults } from "../queries/useResults"
 import type { ResultRecord } from "../types/api"
 
@@ -22,7 +26,7 @@ const columns = [
   col.accessor("is_defect", {
     header: "Status",
     cell: (i) => (
-      <span className={i.getValue() ? "text-red-400 font-medium" : "text-green-400 font-medium"}>
+      <span>
         {i.getValue() ? "Defect" : "OK"}
       </span>
     ),
@@ -70,74 +74,81 @@ function HistoryPage() {
   const maxPage = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
 
   return (
-    <div className="space-y-4 rounded-3xl border border-black/10 bg-white/75 p-6 shadow-sm backdrop-blur">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Inspection History</h1>
-        {isFetching && <span className="text-xs text-[#6e6e73]">Refreshing…</span>}
-      </div>
+    <Card>
+      <CardHeader className="flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-2xl">Inspection History</CardTitle>
+        {isFetching && <span className="text-xs text-muted-foreground">Refreshing...</span>}
+      </CardHeader>
 
-      {isLoading ? (
-        <div className="text-[#6e6e73]">Loading…</div>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-black/10">
-          <table className="w-full text-sm min-w-[640px]">
-            <thead className="bg-[#f5f5f7]">
-              {table.getHeaderGroups().map((hg) => (
-                <tr key={hg.id}>
-                  {hg.headers.map((h) => (
-                    <th
-                      key={h.id}
-                      onClick={h.column.getToggleSortingHandler()}
-                      className="cursor-pointer select-none px-4 py-3 text-left font-medium text-[#6e6e73] transition-colors hover:text-[#1d1d1f]"
-                    >
-                      {flexRender(h.column.columnDef.header, h.getContext())}
-                      {(
-                        { asc: " \u2191", desc: " \u2193" } as Record<string, string>
-                      )[h.column.getIsSorted() as string] ?? ""}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="border-t border-black/10 transition-colors hover:bg-[#f5f5f7]/80"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-4 py-3">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="text-muted-foreground">Loading...</div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <Table className="min-w-[700px]">
+              <TableHeader className="bg-muted/30">
+                {table.getHeaderGroups().map((hg) => (
+                  <TableRow key={hg.id}>
+                    {hg.headers.map((h) => (
+                      <TableHead
+                        key={h.id}
+                        onClick={h.column.getToggleSortingHandler()}
+                        className="cursor-pointer select-none"
+                      >
+                        {flexRender(h.column.columnDef.header, h.getContext())}
+                        {(
+                          { asc: " \u2191", desc: " \u2193" } as Record<string, string>
+                        )[h.column.getIsSorted() as string] ?? ""}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {cell.column.id === "is_defect" ? (
+                          <Badge variant={cell.getValue<boolean>() ? "destructive" : "default"}>
+                            {cell.getValue<boolean>() ? "Defect" : "OK"}
+                          </Badge>
+                        ) : (
+                          flexRender(cell.column.columnDef.cell, cell.getContext())
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Prev
+          </Button>
+          <span className="text-muted-foreground">
+            Page {page} of {data ? maxPage : "—"}
+          </span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!data || page >= maxPage}
+          >
+            Next
+          </Button>
         </div>
-      )}
-
-      <div className="flex items-center justify-end gap-2 text-sm">
-        <button
-          type="button"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-          className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 disabled:opacity-30"
-        >
-          Prev
-        </button>
-        <span className="text-[#6e6e73]">
-          Page {page} of {data ? maxPage : "—"}
-        </span>
-        <button
-          type="button"
-          onClick={() => setPage((p) => p + 1)}
-          disabled={!data || page >= maxPage}
-          className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 disabled:opacity-30"
-        >
-          Next
-        </button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

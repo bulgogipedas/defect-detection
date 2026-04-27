@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { useTelemetry } from "../queries/useTelemetry"
 
 export const Route = createFileRoute("/analytics")({
@@ -18,51 +19,55 @@ function AnalyticsPage() {
       : []
 
   return (
-    <div className="space-y-6 rounded-3xl border border-black/10 bg-white/75 p-6 shadow-sm backdrop-blur">
-      <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Analytics</h1>
-      {isLoading || !data ? (
-        <p className="text-[#6e6e73]">Loading…</p>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
-            <p className="text-sm text-[#6e6e73]">Total inspections</p>
-            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.total}</p>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-2xl">Analytics</CardTitle>
+        <CardDescription>Runtime telemetry for inspection operations.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {isLoading || !data ? (
+          <p className="text-muted-foreground">Loading...</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <MetricCard label="Total inspections" value={`${data.total}`} />
+            <MetricCard label="Avg latency" value={`${data.avg_latency_ms.toFixed(1)} ms`} />
+            <MetricCard label="P50 latency" value={`${data.p50_latency_ms.toFixed(1)} ms`} />
+            <MetricCard label="P95 latency" value={`${data.p95_latency_ms.toFixed(1)} ms`} />
+            <MetricCard
+              label="Inference mode"
+              value={`demo: ${data.demo_inference_count} · prod: ${data.production_inference_count}`}
+            />
           </div>
-          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
-            <p className="text-sm text-[#6e6e73]">Avg latency</p>
-            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.avg_latency_ms.toFixed(1)} ms</p>
+        )}
+        {data && !isLoading && (
+          <div className="h-64 w-full rounded-lg border border-border p-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                <YAxis domain={[0, 100]} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                  }}
+                  labelStyle={{ color: "hsl(var(--foreground))" }}
+                />
+                <Bar dataKey="value" fill="hsl(var(--primary))" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
-            <p className="text-sm text-[#6e6e73]">P50 latency</p>
-            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.p50_latency_ms.toFixed(1)} ms</p>
-          </div>
-          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
-            <p className="text-sm text-[#6e6e73]">P95 latency</p>
-            <p className="text-2xl font-semibold text-[#1d1d1f]">{data.p95_latency_ms.toFixed(1)} ms</p>
-          </div>
-          <div className="rounded-xl border border-black/10 bg-[#f5f5f7] p-4">
-            <p className="text-sm text-[#6e6e73]">Inference mode</p>
-            <p className="text-base text-[#1d1d1f]">
-              demo: {data.demo_inference_count} · prod: {data.production_inference_count}
-            </p>
-          </div>
-        </div>
-      )}
-      {data && !isLoading && (
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" stroke="#9ca3af" />
-              <YAxis domain={[0, 100]} stroke="#9ca3af" />
-              <Tooltip
-                contentStyle={{ background: "#ffffff", border: "1px solid #d2d2d7" }}
-                labelStyle={{ color: "#1d1d1f" }}
-              />
-              <Bar dataKey="value" fill="#0071e3" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function MetricCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-4">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-xl font-semibold">{value}</p>
     </div>
   )
 }

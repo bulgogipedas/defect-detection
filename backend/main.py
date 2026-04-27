@@ -9,8 +9,9 @@ from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import get_settings
-from db.session import engine, init_db
+from db.session import check_db_connection, engine, init_db
 from routers import health, inference, results
+from services.inference_service import warm_auto_category_cache
 
 settings = get_settings()
 logging.basicConfig(
@@ -22,7 +23,18 @@ log = logging.getLogger("defect_api.http")
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    if not settings.resolved_database_url:
+        raise RuntimeError(
+            "DATABASE_URL is not configured. Set a Supabase Postgres URL in your backend .env."
+        )
     await init_db()
+    ok, detail = await check_db_connection()
+    if not ok:
+        raise RuntimeError(f"Database connectivity check failed: {detail}")
+    try:
+        await warm_auto_category_cache()
+    except Exception as e:  # noqa: BLE001
+        log.warning("auto category cache warmup skipped: %s", e)
     yield
     await engine.dispose()
 

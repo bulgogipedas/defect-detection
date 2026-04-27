@@ -11,8 +11,13 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: str = "sqlite+aiosqlite:///./results.db"
+    database_url: str = ""
+    db_provider: str = "supabase-postgres"
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    supabase_project_id: str = ""
+    supabase_url: str = ""
+    supabase_publishable_key: str = ""
+    supabase_secret_key: str = ""
     minio_endpoint: str | None = None
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
@@ -21,7 +26,7 @@ class Settings(BaseSettings):
     use_minio: bool = False
     storage_dir: str = "local_storage"
     patchcore_model_path: str = ""
-    data_raw_root: str = "../data/raw"
+    data_raw_root: str = "~/Downloads/mvtec_anomaly_detection"
     allow_demo_inference_without_model: bool = True
     model_mode: str = "auto"
     active_model_manifest_path: str = "../models/active_model.json"
@@ -44,6 +49,10 @@ class Settings(BaseSettings):
     def models_root(self) -> Path:
         return self.repo_root / "models"
 
+    @property
+    def resolved_database_url(self) -> str:
+        return self.database_url.strip()
+
     def resolve_path(self, raw: str) -> Path:
         p = Path(raw).expanduser()
         if p.is_absolute():
@@ -59,6 +68,21 @@ class Settings(BaseSettings):
 
     def resolve_active_model_manifest(self) -> Path:
         return self.resolve_path(self.active_model_manifest_path)
+
+    def resolve_data_raw_root(self) -> Path:
+        return self.resolve_path(self.data_raw_root)
+
+    def redacted_database_url(self) -> str:
+        url = self.resolved_database_url
+        if "@" not in url or "://" not in url:
+            return url
+        scheme, rest = url.split("://", 1)
+        if ":" in rest and "@" in rest:
+            creds, host_part = rest.split("@", 1)
+            if ":" in creds:
+                user = creds.split(":", 1)[0]
+                return f"{scheme}://{user}:***@{host_part}"
+        return f"{scheme}://***"
 
 
 @lru_cache

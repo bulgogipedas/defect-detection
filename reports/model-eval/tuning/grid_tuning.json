@@ -1,0 +1,91 @@
+{
+  "category": "grid",
+  "best": {
+    "candidate": {
+      "threshold": 90,
+      "k": 3,
+      "metric": "cosine",
+      "reduction": "mean"
+    },
+    "status": "ok",
+    "auroc": 0.5898078529657478,
+    "f1": 0.7868852459016393,
+    "pass_gate": false
+  },
+  "attempts": [
+    {
+      "candidate": {
+        "threshold": 90,
+        "k": 1,
+        "metric": "euclidean",
+        "reduction": "min"
+      },
+      "status": "ok",
+      "auroc": 0.5672514619883041,
+      "f1": 0.8444444444444444,
+      "pass_gate": false
+    },
+    {
+      "candidate": {
+        "threshold": 95,
+        "k": 1,
+        "metric": "euclidean",
+        "reduction": "min"
+      },
+      "status": "ok",
+      "auroc": 0.5672514619883041,
+      "f1": 0.8444444444444444,
+      "pass_gate": false
+    },
+    {
+      "candidate": {
+        "threshold": 95,
+        "k": 3,
+        "metric": "euclidean",
+        "reduction": "mean"
+      },
+      "status": "ok",
+      "auroc": 0.5472013366750209,
+      "f1": 0.8031496062992126,
+      "pass_gate": false
+    },
+    {
+      "candidate": {
+        "threshold": 90,
+        "k": 3,
+        "metric": "cosine",
+        "reduction": "mean"
+      },
+      "status": "ok",
+      "auroc": 0.5898078529657478,
+      "f1": 0.7868852459016393,
+      "pass_gate": false
+    },
+    {
+      "candidate": {
+        "threshold": 95,
+        "k": 5,
+        "metric": "cosine",
+        "reduction": "mean"
+      },
+      "status": "ok",
+      "auroc": 0.5630743525480367,
+      "f1": 0.6391752577319587,
+      "pass_gate": false
+    },
+    {
+      "candidate": {
+        "threshold": 97,
+        "k": 9,
+        "metric": "euclidean",
+        "reduction": "mean"
+      },
+      "status": "ok",
+      "auroc": 0.48370927318295737,
+      "f1": 0.5555555555555556,
+      "pass_gate": false
+    }
+  ],
+  "min_auroc": 0.7,
+  "min_f1": 0.5
+}

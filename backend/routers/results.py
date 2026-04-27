@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from fastapi import APIRouter, HTTPException, Query
 
 from config import get_settings
@@ -48,7 +46,7 @@ async def telemetry() -> TelemetryResponse:
 @router.get("/categories")
 async def categories() -> dict[str, list[str]]:
     s = get_settings()
-    root = Path(s.data_raw_root)
+    root = s.resolve_data_raw_root()
     if not root.is_dir():
         return {"categories": []}
     names = [p.name for p in sorted(root.iterdir()) if p.is_dir()]
