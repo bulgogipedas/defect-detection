@@ -31,6 +31,7 @@ Latest update: modernized operator-first frontend UX with responsive bento layou
 3. Start services for development
    - backend: `cd backend && PYTHONPATH=.. MODEL_MODE=auto uv run uvicorn main:app --reload --port 8000`
    - frontend: `cd frontend && bun run dev`
+   - optional quick check: open `http://localhost:5173` and run one sample inspection
 
 ## Local-first MLOps workflow
 
