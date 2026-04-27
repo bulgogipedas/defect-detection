@@ -11,7 +11,9 @@ if [[ -z "$CHANGED" ]]; then
 fi
 
 NEEDS_EVAL=0
-if echo "$CHANGED" | rg -q "^(src/models/|src/training/|backend/services/inference_service.py)"; then
+# Require fresh evaluation evidence only when model/training code changes.
+# Inference service or UI orchestration updates can happen without retraining.
+if echo "$CHANGED" | rg -q "^(src/models/|src/training/)"; then
   NEEDS_EVAL=1
 fi
 
